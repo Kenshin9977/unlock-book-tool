@@ -20,14 +20,20 @@ def main(page: ft.Page):
         for container in grid.controls:
             symbol = container.data
             number_label = container.content.controls[1]
+            image = container.content.controls[0]
+
             if symbol in selected_symbols:
                 order = selected_symbols.index(symbol) + 1
                 container.border = ft.border.all(ft.Colors.RED)
                 number_label.value = str(order)
                 number_label.visible = True
+                image.opacity = 1.0  # Fully visible
             else:
                 container.border = ft.border.all(ft.Colors.TRANSPARENT)
                 number_label.visible = False
+                # Apply greyscale effect if 6 symbols are selected
+                image.opacity = 0.5 if len(selected_symbols) >= 6 else 1.0
+
             container.update()
 
     def update_selected_row():
