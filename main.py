@@ -2,7 +2,6 @@ import flet as ft
 
 
 def main(page: ft.Page):
-    page.client_storage.set("selected_symbols", [])
     global selected_symbols
     selected_symbols = []
 
@@ -106,11 +105,7 @@ def main(page: ft.Page):
 
     page.add(layout)
 
-    def reset_session(_):
-        page.client_storage.set("selected_symbols", [])
-
-    page.on_connect = reset_session
-    page.on_disconnect = reset_session
+    page.on_connect = reset_selection
 
 
 ft.app(target=main)
