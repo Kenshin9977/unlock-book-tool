@@ -2,27 +2,23 @@ import flet as ft
 
 
 def main(page: ft.Page):
-    # Initialize session-specific state
-    page.session.set("selected_symbols", [])
+    page.client_storage.set("selected_symbols", [])
 
     def toggle_selection(e):
         symbol = e.control.data
-        selected_symbols = page.session.get("selected_symbols")
+        selected_symbols = page.client_storage.get("selected_symbols")
 
         if symbol in selected_symbols:
-            # Unselect symbol
             selected_symbols.remove(symbol)
         elif len(selected_symbols) < 6:
-            # Select symbol only if under the limit
             selected_symbols.append(symbol)
 
-        # Update session state
-        page.session.set("selected_symbols", selected_symbols)
+        page.client_storage.set("selected_symbols", selected_symbols)
         update_grid()
         update_selected_row()
 
     def update_grid():
-        selected_symbols = page.session.get("selected_symbols")
+        selected_symbols = page.client_storage.get("selected_symbols")
         for container in grid.controls:
             symbol = container.data
             number_label = container.content.controls[1]
@@ -37,14 +33,14 @@ def main(page: ft.Page):
             container.update()
 
     def update_selected_row():
-        selected_symbols = page.session.get("selected_symbols")
+        selected_symbols = page.client_storage.get("selected_symbols")
         selected_row.controls.clear()
         for symbol in selected_symbols:
             selected_row.controls.append(ft.Image(src=symbol, width=50, height=50))
         selected_row.update()
 
     def reset_selection(_):
-        page.session.set("selected_symbols", [])
+        page.client_storage.set("selected_symbols", [])
         update_grid()
         update_selected_row()
 
@@ -90,10 +86,9 @@ def main(page: ft.Page):
         on_click=reset_selection,
     )
 
-    # Row to display selected symbols
     selected_row = ft.Row(
         controls=[],
-        alignment=ft.MainAxisAlignment.CENTER,  # Center the selected symbols
+        alignment=ft.MainAxisAlignment.CENTER,
         spacing=10,
     )
 
@@ -103,17 +98,17 @@ def main(page: ft.Page):
             selected_row,
             ft.Row(
                 [reset_button],
-                alignment=ft.MainAxisAlignment.CENTER,  # Center the reset button
+                alignment=ft.MainAxisAlignment.CENTER,
             ),
         ],
-        alignment=ft.MainAxisAlignment.START,  # Stack items top-down
+        alignment=ft.MainAxisAlignment.START,
         spacing=10,
     )
 
     page.add(layout)
 
     def reset_session(_):
-        page.session.set("selected_symbols", [])
+        page.client_storage.set("selected_symbols", [])
 
     page.on_disconnect = reset_session
 
