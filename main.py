@@ -2,10 +2,11 @@ import flet as ft
 
 
 def main(page: ft.Page):
+    page.client_storage.set("selected_symbols", [])
+    global selected_symbols
     selected_symbols = []
 
     def toggle_selection(e):
-        nonlocal selected_symbols
         symbol = e.control.data
 
         if symbol in selected_symbols:
@@ -37,12 +38,11 @@ def main(page: ft.Page):
         selected_row.update()
 
     def reset_selection(_):
-        nonlocal selected_symbols
+        global selected_symbols
         selected_symbols = []
         update_grid()
         update_selected_row()
 
-    # Define the symbols
     symbols = [f"Alchemy-{i}.png" for i in range(1, 21)]
 
     grid = ft.GridView(
@@ -106,8 +106,11 @@ def main(page: ft.Page):
 
     page.add(layout)
 
-    update_grid()
-    update_selected_row()
+    def reset_session(_):
+        page.client_storage.set("selected_symbols", [])
+
+    page.on_connect = reset_session
+    page.on_disconnect = reset_session
 
 
 ft.app(target=main)
