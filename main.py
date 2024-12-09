@@ -2,23 +2,21 @@ import flet as ft
 
 
 def main(page: ft.Page):
-    page.client_storage.set("selected_symbols", [])
+    selected_symbols = []
 
     def toggle_selection(e):
+        nonlocal selected_symbols
         symbol = e.control.data
-        selected_symbols = page.client_storage.get("selected_symbols")
 
         if symbol in selected_symbols:
             selected_symbols.remove(symbol)
         elif len(selected_symbols) < 6:
             selected_symbols.append(symbol)
 
-        page.client_storage.set("selected_symbols", selected_symbols)
         update_grid()
         update_selected_row()
 
     def update_grid():
-        selected_symbols = page.client_storage.get("selected_symbols")
         for container in grid.controls:
             symbol = container.data
             number_label = container.content.controls[1]
@@ -33,17 +31,18 @@ def main(page: ft.Page):
             container.update()
 
     def update_selected_row():
-        selected_symbols = page.client_storage.get("selected_symbols")
         selected_row.controls.clear()
         for symbol in selected_symbols:
             selected_row.controls.append(ft.Image(src=symbol, width=50, height=50))
         selected_row.update()
 
     def reset_selection(_):
-        page.client_storage.set("selected_symbols", [])
+        nonlocal selected_symbols
+        selected_symbols = []
         update_grid()
         update_selected_row()
 
+    # Define the symbols
     symbols = [f"Alchemy-{i}.png" for i in range(1, 21)]
 
     grid = ft.GridView(
@@ -107,10 +106,8 @@ def main(page: ft.Page):
 
     page.add(layout)
 
-    def reset_session(_):
-        page.client_storage.set("selected_symbols", [])
-
-    page.on_disconnect = reset_session
+    update_grid()
+    update_selected_row()
 
 
 ft.app(target=main)
