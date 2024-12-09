@@ -2,7 +2,6 @@ import flet as ft
 
 
 def main(page: ft.Page):
-    global selected_symbols
     selected_symbols = []
 
     def toggle_selection(e):
@@ -43,8 +42,7 @@ def main(page: ft.Page):
         selected_row.update()
 
     def reset_selection(_):
-        global selected_symbols
-        selected_symbols = []
+        selected_symbols.clear()
         update_grid()
         update_selected_row()
 
@@ -110,8 +108,6 @@ def main(page: ft.Page):
     )
 
     page.add(layout)
-
-    page.on_disconnect = reset_selection
 
 
 ft.app(target=main)
