@@ -2,10 +2,12 @@ import flet as ft
 
 
 def main(page: ft.Page):
-    selected_symbols = []
+    # Initialize session-specific state
+    page.session.set("selected_symbols", [])
 
     def toggle_selection(e):
         symbol = e.control.data
+        selected_symbols = page.session.get("selected_symbols")
 
         if symbol in selected_symbols:
             # Unselect symbol
@@ -14,9 +16,13 @@ def main(page: ft.Page):
             # Select symbol only if under the limit
             selected_symbols.append(symbol)
 
+        # Update session state
+        page.session.set("selected_symbols", selected_symbols)
         update_grid()
+        update_selected_row()
 
     def update_grid():
+        selected_symbols = page.session.get("selected_symbols")
         for container in grid.controls:
             symbol = container.data
             number_label = container.content.controls[1]
@@ -29,6 +35,18 @@ def main(page: ft.Page):
                 container.border = ft.border.all(ft.Colors.TRANSPARENT)
                 number_label.visible = False
             container.update()
+
+    def update_selected_row():
+        selected_symbols = page.session.get("selected_symbols")
+        selected_row.controls.clear()
+        for symbol in selected_symbols:
+            selected_row.controls.append(ft.Image(src=symbol, width=50, height=50))
+        selected_row.update()
+
+    def reset_selection(_):
+        page.session.set("selected_symbols", [])
+        update_grid()
+        update_selected_row()
 
     symbols = [f"Alchemy-{i}.png" for i in range(1, 21)]
 
@@ -65,7 +83,39 @@ def main(page: ft.Page):
             )
         )
 
-    page.add(grid)
+    reset_button = ft.IconButton(
+        icon=ft.Icons.RESTART_ALT,
+        icon_size=24,
+        tooltip="Reset",
+        on_click=reset_selection,
+    )
+
+    # Row to display selected symbols
+    selected_row = ft.Row(
+        controls=[],
+        alignment=ft.MainAxisAlignment.CENTER,  # Center the selected symbols
+        spacing=10,
+    )
+
+    layout = ft.Column(
+        [
+            grid,
+            selected_row,
+            ft.Row(
+                [reset_button],
+                alignment=ft.MainAxisAlignment.CENTER,  # Center the reset button
+            ),
+        ],
+        alignment=ft.MainAxisAlignment.START,  # Stack items top-down
+        spacing=10,
+    )
+
+    page.add(layout)
+
+    def reset_session(_):
+        page.session.set("selected_symbols", [])
+
+    page.on_disconnect = reset_session
 
 
 ft.app(target=main)
